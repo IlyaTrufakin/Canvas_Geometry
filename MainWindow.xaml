@@ -11,7 +11,9 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal" Background="Beige" >
             <Label>Ширина:</Label>
@@ -19,16 +21,16 @@
             <Label>Высота:</Label>
             <TextBox Text="{Binding RectangleHeightValue, Mode=TwoWay}" Width="100" Margin="5"/>
             <Label>Радиусы скругления:</Label>
-            <TextBox Text="{Binding Radius1, Mode=TwoWay}" Width="50" Margin="5"/>
-            <TextBox Text="{Binding Radius2, Mode=TwoWay}" Width="50" Margin="5"/>
-            <TextBox Text="{Binding Radius3, Mode=TwoWay}" Width="50" Margin="5"/>
-            <TextBox Text="{Binding Radius4, Mode=TwoWay}" Width="50" Margin="5"/>
-            <Label>Ширина поля:</Label>
-            <TextBox Text="{Binding CanvasWidth, Mode=OneWay}" Width="50" Margin="5" Background="Transparent"/>
-            <Label>Высота поля:</Label>
-            <TextBox Text="{Binding CanvasHeight, Mode=OneWay}" Width="50" Margin="5" Background="Transparent"/>
-
+            <TextBox Text="{Binding Radius1, Mode=TwoWay}" Width="30" Margin="5"/>
+            <TextBox Text="{Binding Radius2, Mode=TwoWay}" Width="30" Margin="5"/>
+            <TextBox Text="{Binding Radius3, Mode=TwoWay}" Width="30" Margin="5"/>
+            <TextBox Text="{Binding Radius4, Mode=TwoWay}" Width="30" Margin="5"/>
+            <Label>Общая/отрезаемая длина сечения профиля:</Label>
+            <TextBox Text="{Binding SectionLength, Mode=OneWay}" Width="50" Margin="5" Background="Transparent"/>
+            <Label>/</Label>
+            <TextBox Text="{Binding SectionCuttingLength, Mode=OneWay}" Width="50" Margin="5" Background="Transparent"/>
         </StackPanel>
+
         <StackPanel Grid.Row="1" Orientation="Horizontal" Background="AliceBlue">
             <Label>Радиус Оси С1:</Label>
             <TextBox Text="{Binding CircleRadius, Mode=TwoWay}" Width="50" Margin="5"/>
@@ -42,9 +44,28 @@
             <TextBox Text="{Binding RotationSpeed, Mode=TwoWay}" Width="50" Margin="5"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Background="Bisque">
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Background="AliceBlue">
             <Label>Радиус Оси С1:</Label>
-            <TextBox Text="{Binding CircleRadius, Mode=TwoWay}" Width="100" Margin="5"/>
+            <TextBox Text="{Binding CircleRadius, Mode=TwoWay}" Width="50" Margin="5"/>
+            <Label>Угол Оси С1:</Label>
+            <TextBox Text="{Binding C1_Angle, Mode=TwoWay}" Width="50" Margin="5"/>
+            <Label>Смещение центра вращения по Х:</Label>
+            <TextBox Text="{Binding CircleCenterX_offset, Mode=TwoWay}" Width="50" Margin="5"/>
+            <Label>Смещение центра вращения по У:</Label>
+            <TextBox Text="{Binding CircleCenterY_offset, Mode=TwoWay}" Width="50" Margin="5"/>
+            <Label>Скорость вращения:</Label>
+            <TextBox Text="{Binding RotationSpeed, Mode=TwoWay}" Width="50" Margin="5"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Background="Bisque">
+            <Label>Стартовая грань (1, 2, 3, 4):</Label>
+            <TextBox Text="{Binding StartEdge, Mode=TwoWay}" Width="50" Margin="5"/>
+            <Label>Стартовая/Концевая позиция отрезки на грани:</Label>
+            <TextBox Text="{Binding StartCuttingPosition, Mode=TwoWay}" Width="50" Margin="5"/>
+            <Label>/</Label>
+            <TextBox Text="{Binding EndCuttingPosition, Mode=TwoWay}" Width="50" Margin="5"/>
+            <Label>Текущая позиция резки на сечении:</Label>
+            <TextBox Text="{Binding StartCuttingPosition, Mode=OneWay}" Width="50" Margin="5" Background="Transparent"/>
             <Button Content="Start" Width="80" Margin="5" Click="StartButton_Click"/>
             <Button Content="Stop" Width="80" Margin="5" Click="PauseButton_Click"/>
             <Button Content="Reset" Width="80" Margin="5" Click="ResetButton_Click"/>
@@ -52,11 +73,20 @@
         </StackPanel>
 
 
-        <Grid Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+        <Grid Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
             <Canvas Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
                     Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
                     x:Name="canvas"></Canvas>
         </Grid>
+
+
+        <StackPanel Grid.Row="5" Orientation="Horizontal" Background="Beige" >
+            <Label>Ширина/высота поля вывода:</Label>
+            <TextBox Text="{Binding CanvasWidth, Mode=OneWay}" Width="50" Margin="5" Background="Transparent"/>
+            <Label>/</Label>
+            <TextBox Text="{Binding CanvasHeight, Mode=OneWay}" Width="50" Margin="5" Background="Transparent"/>
+        </StackPanel>
+
 
     </Grid>
 </Window>
