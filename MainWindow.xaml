@@ -26,9 +26,9 @@
             <TextBox Text="{Binding Radius3, Mode=TwoWay}" Width="30" Margin="5"/>
             <TextBox Text="{Binding Radius4, Mode=TwoWay}" Width="30" Margin="5"/>
             <Label>Общая/отрезаемая длина сечения профиля:</Label>
-            <TextBox Text="{Binding SectionLength, Mode=OneWay}" Width="50" Margin="5" Background="Transparent"/>
+            <TextBox Text="{Binding SectionLength,StringFormat={}{0:N2}, Mode=OneWay}" Width="80" Margin="5" Background="Transparent"/>
             <Label>/</Label>
-            <TextBox Text="{Binding SectionCuttingLength, Mode=OneWay}" Width="50" Margin="5" Background="Transparent"/>
+            <TextBox Text="{Binding SectionCuttingLength,StringFormat={}{0:N2}, Mode=OneWay}" Width="80" Margin="5" Background="Transparent"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Background="AliceBlue">
@@ -45,9 +45,9 @@
         </StackPanel>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" Background="AliceBlue">
-            <Label>Радиус Оси С1:</Label>
+            <Label>Радиус Оси С2:</Label>
             <TextBox Text="{Binding CircleRadius, Mode=TwoWay}" Width="50" Margin="5"/>
-            <Label>Угол Оси С1:</Label>
+            <Label>Угол Оси С2:</Label>
             <TextBox Text="{Binding C1_Angle, Mode=TwoWay}" Width="50" Margin="5"/>
             <Label>Смещение центра вращения по Х:</Label>
             <TextBox Text="{Binding CircleCenterX_offset, Mode=TwoWay}" Width="50" Margin="5"/>
@@ -65,7 +65,7 @@
             <Label>/</Label>
             <TextBox Text="{Binding EndCuttingPosition, Mode=TwoWay}" Width="50" Margin="5"/>
             <Label>Текущая позиция резки на сечении:</Label>
-            <TextBox Text="{Binding StartCuttingPosition, Mode=OneWay}" Width="50" Margin="5" Background="Transparent"/>
+            <TextBox Text="{Binding CurrentPosition, Mode=TwoWay}" Width="50" Margin="5" Background="Gold"/>
             <Button Content="Start" Width="80" Margin="5" Click="StartButton_Click"/>
             <Button Content="Stop" Width="80" Margin="5" Click="PauseButton_Click"/>
             <Button Content="Reset" Width="80" Margin="5" Click="ResetButton_Click"/>

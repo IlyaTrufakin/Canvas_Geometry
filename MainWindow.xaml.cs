@@ -47,16 +47,16 @@ namespace RectangleApp
         private bool isCanvasLoaded = false;
         private double _c1_Angle;
         private int _startEdge;
+        private double _currentPosition;
         private double _startCuttingPosition;
         private double _endCuttingPosition;
         private double _sectionLength;
         private double _sectionCuttingLength;
+        private double currentElement;
         private DispatcherTimer timer;
         private DispatcherTimer timerRender;
-
-        //  private Canvas canvas;
-
         public event PropertyChangedEventHandler PropertyChanged;
+        private double[] elementsLength = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
         public double CanvasWidth
         {
@@ -87,7 +87,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double RectangleHeightValue
         {
             get { return _rectangleHeight; }
@@ -99,7 +98,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double Radius1
         {
             get { return _radius1; }
@@ -111,7 +109,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double Radius2
         {
             get { return _radius2; }
@@ -123,7 +120,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double Radius3
         {
             get { return _radius3; }
@@ -135,7 +131,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double Radius4
         {
             get { return _radius4; }
@@ -147,7 +142,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double CircleRadius
         {
             get { return _circleRadius; }
@@ -158,7 +152,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double CircleCenterX_offset
         {
             get { return _circleCenterX_offset; }
@@ -169,7 +162,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double CircleCenterY_offset
         {
             get { return _circleCenterY_offset; }
@@ -180,7 +172,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double MarkerAngle
         {
             get { return _markerAngle; }
@@ -191,7 +182,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double C1_Angle
         {
             get { return _c1_Angle; }
@@ -202,7 +192,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double RotationSpeed
         {
             get { return _rotationSpeed; }
@@ -213,7 +202,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public int StartEdge
         {
             get { return _startEdge; }
@@ -225,7 +213,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double StartCuttingPosition
         {
             get { return _startCuttingPosition; }
@@ -252,7 +239,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double EndCuttingPosition
         {
             get { return _endCuttingPosition; }
@@ -279,7 +265,6 @@ namespace RectangleApp
                 UpdateShapes();
             }
         }
-
         public double SectionLength
         {
             get { return _sectionLength; }
@@ -287,10 +272,8 @@ namespace RectangleApp
             {
                 _sectionLength = value;
                 RaisePropertyChanged("SectionLength");
-                UpdateShapes();
             }
         }
-
         public double SectionCuttingLength
         {
             get { return _sectionCuttingLength; }
@@ -298,7 +281,15 @@ namespace RectangleApp
             {
                 _sectionCuttingLength = value;
                 RaisePropertyChanged("SectionCuttingLength");
-                UpdateShapes();
+            }
+        }
+        public double CurrentPosition
+        {
+            get { return _currentPosition; }
+            set
+            {
+                _currentPosition = value;
+                RaisePropertyChanged("CurrentPosition");
             }
         }
 
@@ -340,13 +331,33 @@ namespace RectangleApp
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
         private void Canvas_Loaded(object sender, RoutedEventArgs e)
         {
             isCanvasLoaded = true;
             UpdateShapes();
         }
-
+        public int GetCurrentElement(double positionOnSection)
+        {
+            int element;
+            double positionAdded = elementsLength[0];
+            if (positionOnSection >= 0 && positionOnSection <= SectionLength)
+            {
+                for (int i = 0;i<9;i++)
+                {
+                    if (positionOnSection <= positionAdded)
+                    {
+                        return i;
+                    }
+                    positionAdded += elementsLength[i];
+                }
+                element = 1;
+            }
+            else
+            {
+                element = -1;
+            }
+            return element;
+        }
         private void UpdateShapes()
         {
             CanvasWidth = canvas.ActualWidth;
@@ -444,7 +455,7 @@ namespace RectangleApp
             // Запуск анимации вращения
             //rotateTransform.BeginAnimation(RotateTransform.AngleProperty, rotateAnimation);
 
-
+            SectionLength = GetSectionLength();
         }
 
         private LaserVector GetVectorNormal(double currentPosition)
@@ -483,7 +494,6 @@ namespace RectangleApp
 
             return new Point(newX, newY);
         }
-
         private void Timer_Tick(object sender, EventArgs e)
         {
             // Increment angle for rotation
@@ -498,14 +508,12 @@ namespace RectangleApp
             // Обновляем отображение вектора
             //UpdateVector();
         }
-
         private void Render_Timer_Tick(object sender, EventArgs e)
         {
             CanvasWidth = canvas.ActualWidth;
             CanvasHeight = canvas.ActualHeight;
             //UpdateShapes();
         }
-
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
             // Сбрасываем текущую позицию вектора и останавливаем таймер
@@ -513,20 +521,17 @@ namespace RectangleApp
             UpdateShapes(); // Обновляем отображение вектора
             timer.Stop();
         }
-
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
             timer.Tick += (s, args) => MarkerAngle += RotationSpeed;
             timer.Interval = TimeSpan.FromMilliseconds(100); // Adjust this value for desired rotation speed
             timer.Start();
         }
-
         private void PauseButton_Click(object sender, RoutedEventArgs e)
         {
             // Приостанавливаем движение вектора
             timer.Stop();
         }
-
         private Path CreateRoundedRectanglePathByCenter(double X, double Y, double width, double height, double radius1, double radius2, double radius3, double radius4)
         {
             // Создание пути для прямоугольника
@@ -567,7 +572,6 @@ namespace RectangleApp
             Canvas.SetTop(path, Y);
             return path;
         }
-
         private Ellipse CreateMarker(double markerX, double markerY)
         {
             // Создание маркера
@@ -583,7 +587,6 @@ namespace RectangleApp
 
             return marker;
         }
-
         private Path C1_Axis_CrossLines(double x, double y, double length, double angle)
         {
             double angleInRadians = angle * Math.PI / 180; // Переводим угол из градусов в радианы
@@ -626,36 +629,22 @@ namespace RectangleApp
         }
         private Path CreateCrossLines(double x, double y, double length, double angle)
         {
-            // Вычисляем половинную длину линии
             double halfLength = length / 5;
-
-            // Создаем первую линию
             LineGeometry line1 = new LineGeometry(new Point(-halfLength, 0), new Point(halfLength, 0));
-
-            // Создаем вторую линию
             LineGeometry line2 = new LineGeometry(new Point(0, -length), new Point(0, halfLength));
-
-            // Создаем геометрическую группу для объединения линий
             GeometryGroup combinedGeometry = new GeometryGroup();
             combinedGeometry.Children.Add(line1);
             combinedGeometry.Children.Add(line2);
-
-            // Создаем фигуру на основе геометрической группы
             Path path = new Path();
             path.Stroke = Brushes.Red; // Цвет линий
             path.StrokeThickness = 1; // Толщина линий
             path.Data = combinedGeometry; // Устанавливаем геометрию фигуры
-
-            // Создаем вращающее преобразование
-            RotateTransform rotateTransform = new RotateTransform(angle, 0, 0);
+            RotateTransform rotateTransform = new RotateTransform(angle, 0, 0);// Создаем вращающее преобразование
             path.RenderTransform = rotateTransform;
             Canvas.SetLeft(path, x);
             Canvas.SetTop(path, y);
-
             return path;
         }
-
-
         private Path LaserHead(double x, double y, double length, double angle)
         {
             // Вычисляем половинную длину линии
@@ -685,7 +674,6 @@ namespace RectangleApp
             Canvas.SetTop(path, y);
             return path;
         }
-
         private Ellipse CreateCircle(double circleCenterX, double circleCenterY, double circleRadius)
         {
             // Создание окружности
@@ -702,7 +690,6 @@ namespace RectangleApp
 
             return circle;
         }
-
         private Line CreateVectorLine(double startX, double startY, double endX, double endY)
         {
             Line line = new Line();
@@ -714,7 +701,6 @@ namespace RectangleApp
             line.StrokeThickness = 2;
             return line;
         }
-
         private Line DashLine(double startPointX, double startPointY, double endPointX, double endPointY, int dash1, int dash2)
         {
             // Создание новой линии
@@ -730,12 +716,24 @@ namespace RectangleApp
             line.Y2 = endPointY;
             return line;
         }
-
         private void SetupCanvas()
         {
             canvas.Children.Clear();
             //var scaleTransform = new ScaleTransform(2, 2); // Увеличиваем в 1.5 раза
             //canvas.LayoutTransform = scaleTransform;
+        }
+        private double GetSectionLength()
+        {
+            elementsLength[0] = (RectangleWidthValue / 2) - Radius2;
+            elementsLength[1] = (Radius2 * 2 * Math.PI / 4);
+            elementsLength[2] = (RectangleHeightValue) - Radius2 - Radius3;
+            elementsLength[3] = (Radius3 * 2 * Math.PI / 4);
+            elementsLength[4] = (RectangleWidthValue) - Radius3 - Radius4;
+            elementsLength[5] = (Radius4 * 2 * Math.PI / 4);
+            elementsLength[6] = (RectangleHeightValue) - Radius4 - Radius1;
+            elementsLength[7] = (Radius1 * 2 * Math.PI / 4);
+            elementsLength[8] = (RectangleWidthValue / 2) - Radius1;
+            return elementsLength.Sum();
         }
     }
 }
