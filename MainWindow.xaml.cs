@@ -26,6 +26,8 @@ namespace RectangleApp
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        private static readonly int[] elementsType = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+
         public LaserVector laserVector;
         private Point currentPoint; // Текущая позиция вектора
         private Point startPoint; // Текущая позиция вектора
@@ -52,7 +54,7 @@ namespace RectangleApp
         private double _endCuttingPosition;
         private double _sectionLength;
         private double _sectionCuttingLength;
-        private double currentElement;
+        private double _currentElement;
         private DispatcherTimer timer;
         private DispatcherTimer timerRender;
         public event PropertyChangedEventHandler PropertyChanged;
@@ -292,6 +294,15 @@ namespace RectangleApp
                 RaisePropertyChanged("CurrentPosition");
             }
         }
+        public double CurrentElement
+        {
+            get { return _currentElement; }
+            set
+            {
+                _currentElement = value;
+                RaisePropertyChanged("CurrentElement");
+            }
+        }
 
         public MainWindow()
         {
@@ -299,23 +310,19 @@ namespace RectangleApp
             InitializeComponent();
             SetupCanvas();
             StartEdge = 1;
-            StartCuttingPosition = -3;
+            StartCuttingPosition = 0;
             DataContext = this;
-            RectangleWidthValue = 200;
-            RectangleHeightValue = 300;
-            Radius1 = 5;
-            Radius2 = 5;
-            Radius3 = 5;
-            Radius4 = 5;
+            RectangleWidthValue = 300;
+            RectangleHeightValue = 500;
+            Radius1 = 50;
+            Radius2 = 50;
+            Radius3 = 50;
+            Radius4 = 50;
             CircleRadius = 300;
             CircleCenterX_offset = 10;
             CircleCenterY_offset = -15;
             RotationSpeed = 1; // default rotation speed
             MarkerAngle = 0; // initial angle
-            startPoint = new Point(0, 0);
-            currentPoint = startPoint;
-            //laserVector = new LaserVector(currentPoint);
-
             timer = new DispatcherTimer();
             timer.Tick += Timer_Tick;
             timer.Interval = TimeSpan.FromMilliseconds(100);
@@ -323,7 +330,6 @@ namespace RectangleApp
             timerRender.Tick += Render_Timer_Tick;
             timerRender.Interval = TimeSpan.FromMilliseconds(1000);
             timerRender.Start();
-
             canvas.Loaded += Canvas_Loaded;
         }
 
@@ -336,13 +342,38 @@ namespace RectangleApp
             isCanvasLoaded = true;
             UpdateShapes();
         }
+        public int ShowCurrentPosition(double positionOnSection)
+        {
+
+            int element = GetCurrentElement(positionOnSection);
+            elementsType[element];
+
+            double positionAdded = elementsLength[0];
+            if (positionOnSection >= 0 && positionOnSection <= SectionLength)
+            {
+                for (int i = 0; i < 9; i++)
+                {
+                    if (positionOnSection <= positionAdded)
+                    {
+                        return i;
+                    }
+                    positionAdded += elementsLength[i];
+                }
+                element = 1;
+            }
+            else
+            {
+                element = -1;
+            }
+            return element;
+        }
         public int GetCurrentElement(double positionOnSection)
         {
             int element;
             double positionAdded = elementsLength[0];
             if (positionOnSection >= 0 && positionOnSection <= SectionLength)
             {
-                for (int i = 0;i<9;i++)
+                for (int i = 0; i < 9; i++)
                 {
                     if (positionOnSection <= positionAdded)
                     {
@@ -456,6 +487,7 @@ namespace RectangleApp
             //rotateTransform.BeginAnimation(RotateTransform.AngleProperty, rotateAnimation);
 
             SectionLength = GetSectionLength();
+            CurrentElement = GetCurrentElement(CurrentPosition);
         }
 
         private LaserVector GetVectorNormal(double currentPosition)

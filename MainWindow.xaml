@@ -26,9 +26,9 @@
             <TextBox Text="{Binding Radius3, Mode=TwoWay}" Width="30" Margin="5"/>
             <TextBox Text="{Binding Radius4, Mode=TwoWay}" Width="30" Margin="5"/>
             <Label>Общая/отрезаемая длина сечения профиля:</Label>
-            <TextBox Text="{Binding SectionLength,StringFormat={}{0:N2}, Mode=OneWay}" Width="80" Margin="5" Background="Transparent"/>
+            <TextBox Text="{Binding SectionLength,StringFormat={}{0:N2}, Mode=OneWay}" Width="60" Margin="5" Background="Transparent"/>
             <Label>/</Label>
-            <TextBox Text="{Binding SectionCuttingLength,StringFormat={}{0:N2}, Mode=OneWay}" Width="80" Margin="5" Background="Transparent"/>
+            <TextBox Text="{Binding SectionCuttingLength,StringFormat={}{0:N2}, Mode=OneWay}" Width="60" Margin="5" Background="Transparent"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Background="AliceBlue">
@@ -66,6 +66,8 @@
             <TextBox Text="{Binding EndCuttingPosition, Mode=TwoWay}" Width="50" Margin="5"/>
             <Label>Текущая позиция резки на сечении:</Label>
             <TextBox Text="{Binding CurrentPosition, Mode=TwoWay}" Width="50" Margin="5" Background="Gold"/>
+            <Label>Текущий элемент на сечении:</Label>
+            <TextBox Text="{Binding CurrentElement, Mode=OneWay}" Width="20" Margin="5" Background="Transparent"/>
             <Button Content="Start" Width="80" Margin="5" Click="StartButton_Click"/>
             <Button Content="Stop" Width="80" Margin="5" Click="PauseButton_Click"/>
             <Button Content="Reset" Width="80" Margin="5" Click="ResetButton_Click"/>
