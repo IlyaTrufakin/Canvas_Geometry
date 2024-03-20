@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RectangleApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="850" Width="1400">
+        Title="MainWindow" Height="950" Width="1400">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -74,12 +74,13 @@
 
         </StackPanel>
 
-
-        <Grid Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
-            <Canvas Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
-                    Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}"
-                    x:Name="canvas"></Canvas>
+        <Grid Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" x:Name="CanvasContainer">
+    
         </Grid>
+        
+        
+
+  
 
 
         <StackPanel Grid.Row="5" Orientation="Horizontal" Background="Beige" >
