@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,7 +60,7 @@ namespace RectangleApp
         private DispatcherTimer timer;
         private DispatcherTimer timerRender;
         public event PropertyChangedEventHandler PropertyChanged;
-
+        public LaserVector laserVector;
 
         public double CanvasWidth
         {
@@ -312,7 +313,7 @@ namespace RectangleApp
             StartEdge = 1;
             StartCuttingPosition = 0;
             DataContext = this;
-            CurrentPosition = 0;
+            CurrentPosition = 10;
             RectangleWidthValue = 300;
             RectangleHeightValue = 500;
             Radius1 = 50;
@@ -322,7 +323,7 @@ namespace RectangleApp
             CircleRadius = 300;
             CircleCenterX_offset = 10;
             CircleCenterY_offset = -15;
-            RotationSpeed = 1; // default rotation speed
+            RotationSpeed = 3; // default rotation speed
             //MarkerAngle = 0; // initial angle
             timer = new DispatcherTimer();
             timer.Tick += Timer_Tick;
@@ -332,8 +333,6 @@ namespace RectangleApp
             timerRender.Interval = TimeSpan.FromMilliseconds(1000);
             timerRender.Start();
             canvas1.Loaded += Canvas_Loaded;
-
-
         }
 
         private void RaisePropertyChanged(string propertyName)
@@ -345,8 +344,6 @@ namespace RectangleApp
             isCanvasLoaded = true;
             UpdateShapes();
         }
-
-
         private void UpdateShapes()
         {
             CanvasWidth = canvas1.ActualWidth;
@@ -364,25 +361,31 @@ namespace RectangleApp
 
             rectangleElement = new RectangleElement(canvasCenter_X, canvasCenter_Y, RectangleWidthValue, RectangleHeightValue, Radius1, Radius2, Radius3, Radius4);
             rectangleElement.Draw(canvas1);
+            laserVector = rectangleElement.DrawNormal(canvas1, 30, CurrentPosition);
 
-            rectangleElement.DrawNormal(canvas1, 30, CurrentPosition);
+
+            LaserHead laserHead = new LaserHead(laserVector, 150, Colors.DeepPink, 3);
+            laserHead.Draw(canvas1, canvasCenter_X, canvasCenter_Y);
+
             // Создание окружности оси С1
-            double circleCenterX = canvasCenter_X + CircleCenterX_offset;
-            double circleCenterY = canvasCenter_Y + CircleCenterY_offset;
-            Ellipse circle = CreateCircle(circleCenterX, circleCenterY, CircleRadius);
+            double circleCenterX = canvasCenter_X;// + CircleCenterX_offset;
+            double circleCenterY = canvasCenter_Y;// + CircleCenterY_offset;
+
+            Ellipse circle = CreateCircle(circleCenterX, circleCenterY, laserHead.End_X_Position, laserHead.End_Y_Position);
             canvas1.Children.Add(circle);
 
-            Path c1Axis = CreateCrossLines(circleCenterX, circleCenterY, CircleRadius, C1_Angle);
+            Path c1Axis = CreateCrossLines(circleCenterX + CircleCenterX_offset, circleCenterY + CircleCenterY_offset, 40, C1_Angle);
             canvas1.Children.Add(c1Axis);
 
-            Path laserHead = LaserHead(circleCenterX, circleCenterY, 200, C1_Angle);
-            canvas1.Children.Add(laserHead);
 
-            DoubleAnimation rotateAnimation = new DoubleAnimation();
-            rotateAnimation.From = 0; // Угол начала анимации
-            rotateAnimation.To = 360; // Угол окончания анимации
-            rotateAnimation.Duration = TimeSpan.FromSeconds(2); // Продолжительность анимации
-            rotateAnimation.RepeatBehavior = RepeatBehavior.Forever; // Повторять анимацию бесконечно
+
+
+
+            /*          DoubleAnimation rotateAnimation = new DoubleAnimation();
+                      rotateAnimation.From = 0; // Угол начала анимации
+                      rotateAnimation.To = 360; // Угол окончания анимации
+                      rotateAnimation.Duration = TimeSpan.FromSeconds(2); // Продолжительность анимации
+                      rotateAnimation.RepeatBehavior = RepeatBehavior.Forever; // Повторять анимацию бесконечно*/
 
             // Создание вращательной трансформации
             //RotateTransform rotateTransform = new RotateTransform();
@@ -390,6 +393,17 @@ namespace RectangleApp
 
             // Запуск анимации вращения
             //rotateTransform.BeginAnimation(RotateTransform.AngleProperty, rotateAnimation);
+
+            TextBlock textBlock = new TextBlock();
+            textBlock.FontSize = 11;
+            textBlock.VerticalAlignment = VerticalAlignment.Center;
+            textBlock.TextAlignment = TextAlignment.Center;
+            textBlock.Text = $"СN:{laserVector.Angle}\nX:{laserVector.X:F2}\nY:{laserVector.Y:F2}";
+            // Canvas.SetLeft(textBlock, laserVector.X + canvasCenter_X);
+            //Canvas.SetTop(textBlock, laserVector.Y - canvasCenter_Y);
+            Canvas.SetLeft(textBlock, canvasCenter_X);
+            Canvas.SetTop(textBlock, canvasCenter_Y);
+            canvas1.Children.Add(textBlock);
 
             SectionLength = rectangleElement.GetSectionLength();
             CurrentElement = rectangleElement.GetCurrentElement(CurrentPosition);
@@ -430,85 +444,8 @@ namespace RectangleApp
             // Приостанавливаем движение вектора
             timer.Stop();
         }
-        private Ellipse CreateMarker(double markerX, double markerY)
-        {
-            // Создание маркера
-            var marker = new Ellipse
-            {
-                Width = 10,
-                Height = 10,
-                Fill = Brushes.Green
-            };
 
-            Canvas.SetLeft(marker, markerX - 5);
-            Canvas.SetTop(marker, markerY - 5);
 
-            return marker;
-        }
-
-        private Path CreateCrossLines(double x, double y, double length, double angle)
-        {
-            double halfLength = length / 5;
-            LineGeometry line1 = new LineGeometry(new Point(-halfLength, 0), new Point(halfLength, 0));
-            LineGeometry line2 = new LineGeometry(new Point(0, -length), new Point(0, halfLength));
-            GeometryGroup combinedGeometry = new GeometryGroup();
-            combinedGeometry.Children.Add(line1);
-            combinedGeometry.Children.Add(line2);
-            Path path = new Path();
-            path.Stroke = Brushes.Red; // Цвет линий
-            path.StrokeThickness = 1; // Толщина линий
-            path.Data = combinedGeometry; // Устанавливаем геометрию фигуры
-            RotateTransform rotateTransform = new RotateTransform(angle, 0, 0);// Создаем вращающее преобразование
-            path.RenderTransform = rotateTransform;
-            Canvas.SetLeft(path, x);
-            Canvas.SetTop(path, y);
-            return path;
-        }
-        private Path LaserHead(double x, double y, double length, double angle)
-        {
-            // Вычисляем половинную длину линии
-            double halfLength = length / 5;
-
-            // Создаем первую линию
-            LineGeometry line1 = new LineGeometry(new Point(0, 0), new Point(0, length));
-            LineGeometry line2 = new LineGeometry(new Point(0, length), new Point(halfLength, 0));
-            LineGeometry line3 = new LineGeometry(new Point(halfLength, 0), new Point(-halfLength, 0));
-            LineGeometry line4 = new LineGeometry(new Point(-halfLength, 0), new Point(0, length));
-            // Создаем геометрическую группу для объединения линий
-            GeometryGroup combinedGeometry = new GeometryGroup();
-            combinedGeometry.Children.Add(line1);
-            combinedGeometry.Children.Add(line2);
-            combinedGeometry.Children.Add(line3);
-            combinedGeometry.Children.Add(line4);
-            // Создаем фигуру на основе геометрической группы
-            Path path = new Path();
-            path.Stroke = Brushes.BlueViolet; // Цвет линий
-            path.StrokeThickness = 1; // Толщина линий
-            path.Data = combinedGeometry; // Устанавливаем геометрию фигуры
-
-            // Создаем вращающее преобразование
-            RotateTransform rotateTransform = new RotateTransform(angle, 0, 0);
-            path.RenderTransform = rotateTransform;
-            Canvas.SetLeft(path, x);
-            Canvas.SetTop(path, y);
-            return path;
-        }
-        private Ellipse CreateCircle(double circleCenterX, double circleCenterY, double circleRadius)
-        {
-            // Создание окружности
-            Ellipse circle = new Ellipse
-            {
-                Width = circleRadius * 2,
-                Height = circleRadius * 2,
-                Stroke = Brushes.Red,
-                StrokeThickness = 2
-            };
-
-            Canvas.SetLeft(circle, circleCenterX - circleRadius);
-            Canvas.SetTop(circle, circleCenterY - circleRadius);
-
-            return circle;
-        }
 
         private Line DashLine(double startPointX, double startPointY, double endPointX, double endPointY, int dash1, int dash2)
         {

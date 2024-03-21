@@ -55,6 +55,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Disk.cs" />
+    <Compile Include="LaserHead.cs" />
     <Compile Include="RayElement.cs" />
     <Compile Include="RectangleElement.cs" />
     <Page Include="MainWindow.xaml">

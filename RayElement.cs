@@ -47,23 +47,26 @@ namespace RectangleApp
             End_Y_Position = Y + (Length * Math.Sin(AngleRadians));
         }
 
+
+
         // Метод для вычисления координат точки на луче
-        public void CalculatePointPosition(double pointPositionFromStart)
+        public LaserVector CalculatePointPosition(double pointPositionFromStart)
         {
             PointX_Position_Normal = X + (pointPositionFromStart * Math.Cos(AngleRadians));
             PointY_Position_Normal = Y + (pointPositionFromStart * Math.Sin(AngleRadians));
             PointNormalAngleRadians = (AngleRadians - (Math.PI / 2) + 2 * Math.PI) % (2 * Math.PI);// Добавляем PI, чтобы нормаль была противоположна направлению луча
             PointNormalAngle = PointNormalAngleRadians * (180 / Math.PI); // Перевод угла в градусы
+            return new LaserVector(PointX_Position_Normal, PointY_Position_Normal, PointNormalAngleRadians);
         }
 
         // Метод для вычисления угла нормали
-        public void CalculatePointNormalAngle()
-        {
-            PointNormalAngleRadians = (AngleRadians - (Math.PI / 2) + 2 * Math.PI) % (2 * Math.PI);// Добавляем PI, чтобы нормаль была противоположна направлению луча
-            PointNormalAngle = PointNormalAngleRadians * (180 / Math.PI); // Перевод угла в градусы
-        }
+        /*      public void CalculatePointNormalAngle()
+              {
+                  PointNormalAngleRadians = (AngleRadians - (Math.PI / 2) + 2 * Math.PI) % (2 * Math.PI);// Добавляем PI, чтобы нормаль была противоположна направлению луча
+                  PointNormalAngle = PointNormalAngleRadians * (180 / Math.PI); // Перевод угла в градусы
+              }*/
 
-        public void Draw(Canvas canvas, int elementNumder, double totalLenght = 0)
+        public void Draw(Canvas canvas, double x, double y, int elementNumder, double totalLenght = 0)
         {
             // Создание линии, представляющей луч
             Line line = new Line();
@@ -75,8 +78,8 @@ namespace RectangleApp
             line.Y2 = End_Y_Position;
 
             // Добавление линии на канвас
-            Canvas.SetLeft(line, 0);
-            Canvas.SetTop(line, 0);
+            Canvas.SetLeft(line, x);
+            Canvas.SetTop(line, y);
             canvas.Children.Add(line);
 
             TextBlock textBlock = new TextBlock();
@@ -85,12 +88,12 @@ namespace RectangleApp
             textBlock.TextAlignment = TextAlignment.Center;
             textBlock.Text = $"N:{elementNumder}\nL:{Length:F2}\ntL{totalLenght:F2}";
 
-            Canvas.SetLeft(textBlock, (X + End_X_Position) / 2 + textBlock.ActualWidth);
-            Canvas.SetTop(textBlock, (Y + End_Y_Position) / 2);
+            Canvas.SetLeft(textBlock, (x + (X + End_X_Position) / 2) + textBlock.ActualWidth);
+            Canvas.SetTop(textBlock, y + (Y + End_Y_Position) / 2);
             canvas.Children.Add(textBlock);
         }
 
-        public void DrawNormal(Canvas canvas, double normalLength, double pointPositionFromStart)
+        public void DrawNormal(Canvas canvas, double x, double y, double normalLength, double pointPositionFromStart)
         {
             // Вычисление координат точки на кривой
             CalculatePointPosition(pointPositionFromStart);
@@ -110,8 +113,8 @@ namespace RectangleApp
             normalLine.Y2 = normalEndY;
 
             // Добавление линии нормали на Canvas
-            Canvas.SetLeft(normalLine, 0);
-            Canvas.SetTop(normalLine, 0);
+            Canvas.SetLeft(normalLine, x);
+            Canvas.SetTop(normalLine, y);
             canvas.Children.Add(normalLine);
 
             // Добавление точки нормали на Canvas
@@ -120,18 +123,18 @@ namespace RectangleApp
             pointEllipse.Height = 4;
             pointEllipse.Fill = new SolidColorBrush(Colors.Red);
 
-            Canvas.SetLeft(pointEllipse, PointX_Position_Normal - 2);
-            Canvas.SetTop(pointEllipse, PointY_Position_Normal - 2);
+            Canvas.SetLeft(pointEllipse, x + PointX_Position_Normal - 2);
+            Canvas.SetTop(pointEllipse, y + PointY_Position_Normal - 2);
             canvas.Children.Add(pointEllipse);
 
-            TextBlock textBlock = new TextBlock();
-            textBlock.FontSize = 11;
-            textBlock.VerticalAlignment = VerticalAlignment.Center;
-            textBlock.TextAlignment = TextAlignment.Center;
-            textBlock.Text = $"СN:{PointNormalAngle}\nС:{Angle:F2}\nСNR:{PointNormalAngleRadians:F2}";
-            Canvas.SetLeft(textBlock, PointX_Position_Normal);
-            Canvas.SetTop(textBlock, PointY_Position_Normal);
-            canvas.Children.Add(textBlock);
+            /*          TextBlock textBlock = new TextBlock();
+                      textBlock.FontSize = 9;
+                      textBlock.VerticalAlignment = VerticalAlignment.Center;
+                      textBlock.TextAlignment = TextAlignment.Center;
+                      textBlock.Text = $"СN:{PointNormalAngle}\nС:{Angle:F2}\nСNR:{PointNormalAngleRadians:F2}";
+                      Canvas.SetLeft(textBlock, PointX_Position_Normal);
+                      Canvas.SetTop(textBlock, PointY_Position_Normal);
+                      canvas.Children.Add(textBlock);*/
         }
     }
 }

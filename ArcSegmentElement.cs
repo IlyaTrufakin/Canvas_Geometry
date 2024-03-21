@@ -32,7 +32,6 @@ namespace RectangleApp
         public double PointNormalAngleRadians { get; set; }
         public double PointNormalAngle { get; set; }
         public LaserVector vector { get; set; }
-
         public ArcSegmentElement(double x, double y, double r, double startAngle, double endAngle, Color color = default, double thickness = 1)
         {
             if (r <= 0)
@@ -73,19 +72,19 @@ namespace RectangleApp
             PointNormalAngle = PointNormalAngleRadians * (180 / Math.PI);
             PointX_Position = R * Math.Cos(PointNormalAngleRadians);
             PointY_Position = R * Math.Sin(PointNormalAngleRadians);
-            return new LaserVector(PointX_Position, PointY_Position, PointNormalAngleRadians);
+            return new LaserVector(X + PointX_Position, Y + PointY_Position, PointNormalAngleRadians);
         }
 
         // Метод для вычисления угла нормали
-        public void CalculatePointNormalAngle(double pointPositionFromStart)
-        {
-            PointPositionFromStart = pointPositionFromStart;
-            // Вычисление угла нормали
-            PointNormalAngleRadians = StartAngleRadians + (ArcAngleRadians * (PointPositionFromStart / ArcLength));
-            PointNormalAngle = PointNormalAngleRadians * (180 / Math.PI);
-        }
+        /*       public void CalculatePointNormalAngle(double pointPositionFromStart)
+               {
+                   PointPositionFromStart = pointPositionFromStart;
+                   // Вычисление угла нормали
+                   PointNormalAngleRadians = StartAngleRadians + (ArcAngleRadians * (PointPositionFromStart / ArcLength));
+                   PointNormalAngle = PointNormalAngleRadians * (180 / Math.PI);
+               }*/
 
-        public void Draw(Canvas canvas, int elementNumder, double totalLenght = 0)
+        public void Draw(Canvas canvas, double x, double y, int elementNumder, double totalLenght = 0)
         {
             // Создание Path
             Path path = new Path();
@@ -93,10 +92,10 @@ namespace RectangleApp
             path.StrokeThickness = Thickness;
 
             // Вычисление координат начальной и конечной точек дуги
-            double startX = X + R * Math.Cos(StartAngleRadians);
-            double startY = Y + R * Math.Sin(StartAngleRadians);
-            double endX = X + R * Math.Cos(EndAngleRadians);
-            double endY = Y + R * Math.Sin(EndAngleRadians);
+            double startX = X + (R * Math.Cos(StartAngleRadians));
+            double startY = Y + (R * Math.Sin(StartAngleRadians));
+            double endX = X + (R * Math.Cos(EndAngleRadians));
+            double endY = Y + (R * Math.Sin(EndAngleRadians));
 
             // Создание геометрии дуги
             PathGeometry geometry = new PathGeometry();
@@ -114,8 +113,8 @@ namespace RectangleApp
             path.Data = geometry;
 
             // Добавление Path на Canvas
-            Canvas.SetLeft(path, 0);
-            Canvas.SetTop(path, 0);
+            Canvas.SetLeft(path, x);
+            Canvas.SetTop(path, y);
             canvas.Children.Add(path);
 
             TextBlock textBlock = new TextBlock();
@@ -123,12 +122,13 @@ namespace RectangleApp
             textBlock.VerticalAlignment = VerticalAlignment.Center;
             textBlock.TextAlignment = TextAlignment.Center;
             textBlock.Text = $"N:{elementNumder}\nR:{R}\nL:{ArcLength:F2}\ntL{totalLenght:F2}";
-            Canvas.SetLeft(textBlock, X);
-            Canvas.SetTop(textBlock, Y);
+            Canvas.SetLeft(path, x);
+            Canvas.SetLeft(textBlock, x + X);
+            Canvas.SetTop(textBlock, y + Y);
             canvas.Children.Add(textBlock);
         }
 
-        public void DrawNormal(Canvas canvas, double normalLength, double pointPositionFromStart)
+        public void DrawNormal(Canvas canvas, double x, double y, double normalLength, double pointPositionFromStart)
         {
             // Вычисление координат точки на кривой
             CalculatePointPosition(pointPositionFromStart);
@@ -142,14 +142,14 @@ namespace RectangleApp
             normalLine.StrokeThickness = 1;
 
             // Установка координат начала и конца линии нормали
-            normalLine.X1 = PointX_Position;
-            normalLine.Y1 = PointY_Position;
-            normalLine.X2 = normalEndX;
-            normalLine.Y2 = normalEndY;
+            normalLine.X1 = X + PointX_Position;
+            normalLine.Y1 = Y + PointY_Position;
+            normalLine.X2 = X + normalEndX;
+            normalLine.Y2 = Y + normalEndY;
 
             // Добавление линии нормали на Canvas
-            Canvas.SetLeft(normalLine, X);
-            Canvas.SetTop(normalLine, Y);
+            Canvas.SetLeft(normalLine, x);
+            Canvas.SetTop(normalLine, y);
             canvas.Children.Add(normalLine);
 
             // Добавление точки нормали на Canvas
@@ -158,17 +158,17 @@ namespace RectangleApp
             pointEllipse.Height = 4;
             pointEllipse.Fill = new SolidColorBrush(Colors.Red);
 
-            Canvas.SetLeft(pointEllipse, X + PointX_Position - 2);
-            Canvas.SetTop(pointEllipse, Y + PointY_Position - 2);
+            Canvas.SetLeft(pointEllipse, x + X + PointX_Position - 2);
+            Canvas.SetTop(pointEllipse, y + Y + PointY_Position - 2);
             canvas.Children.Add(pointEllipse);
 
             TextBlock textBlock = new TextBlock();
             textBlock.FontSize = 9;
             textBlock.VerticalAlignment = VerticalAlignment.Center;
             textBlock.TextAlignment = TextAlignment.Center;
-            textBlock.Text = $"С:{PointNormalAngle}\nСR:{PointNormalAngleRadians:F2}";
-            Canvas.SetLeft(textBlock, X + normalEndX);
-            Canvas.SetTop(textBlock, Y + normalEndY);
+            textBlock.Text = $"С:{PointNormalAngle}\nСR:{PointNormalAngleRadians:F2}\nXp:{PointX_Position}\nYp:{PointY_Position}\nX:{X}\nY:{Y}";
+            Canvas.SetLeft(textBlock, x + X + normalEndX);
+            Canvas.SetTop(textBlock, y + Y + normalEndY);
             canvas.Children.Add(textBlock);
         }
     }

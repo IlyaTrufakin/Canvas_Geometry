@@ -13,6 +13,8 @@ namespace RectangleApp
     {
         private double[] elementsLength = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         private double[] elementsLengthSummary = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        private double[] elementsXcoord = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        private double[] elementsYcoord = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         public ArcSegmentElement arcElement1;
         public ArcSegmentElement arcElement2;
         public ArcSegmentElement arcElement3;
@@ -31,6 +33,7 @@ namespace RectangleApp
         private double Radius3 { get; set; }
         private double Radius4 { get; set; }
         private double SectionLength { get; set; }
+        private LaserVector laserVector;
 
         public RectangleElement(double x, double y, double width, double height, double radius1, double radius2, double radius3, double radius4)
         {
@@ -42,80 +45,112 @@ namespace RectangleApp
             Radius4 = radius4;
             Rectangle_Width = width;
             RectangleHeight = height;
-            rayElement1 = new RayElement(X, Y - (height / 2), 0, (width / 2) - radius2, Colors.Brown, 2);
-            arcElement2 = new ArcSegmentElement(X + (width / 2) - radius2, Y - (height / 2) + radius2, radius2, 270, 0, Colors.LawnGreen, 2);
-            rayElement2 = new RayElement(X + (width / 2), Y - (height / 2) + radius2, 90, (height) - radius2 - radius3, Colors.Khaki, 2);
-            arcElement3 = new ArcSegmentElement(X + (width / 2) - radius3, Y + (height / 2) - radius3, radius3, 0, 90, Colors.Tomato, 2);
-            rayElement3 = new RayElement(X + (width / 2) - radius3, Y + (height / 2), 180, (width) - radius4 - radius3, Colors.Violet, 2);
-            arcElement4 = new ArcSegmentElement(X - (width / 2) + radius4, Y + (height / 2) - radius4, radius4, 90, 180, Colors.RoyalBlue, 2);
-            rayElement4 = new RayElement(X - (width / 2), Y + (height / 2) - radius4, 270, (height) - radius4 - radius1, Colors.SeaGreen, 2);
-            arcElement1 = new ArcSegmentElement(X - (width / 2) + radius1, Y - (height / 2) + radius1, radius1, 180, 270, Colors.Fuchsia, 2);
-            rayElement5 = new RayElement(X - (width / 2) + radius1, Y - (height / 2), 0, (width / 2) - radius1, Colors.Indigo, 2);
+            elementsXcoord[0] = 0;
+            elementsYcoord[0] = height / 2;
+            elementsXcoord[1] = (width / 2) - radius2;
+            elementsYcoord[1] = (height / 2) - radius2;
+            elementsXcoord[2] = (width / 2);
+            elementsYcoord[2] = (height / 2) - radius2;
+            elementsXcoord[3] = (width / 2) - radius3;
+            elementsYcoord[3] = (height / 2) - radius3;
+            elementsXcoord[4] = (width / 2) - radius3;
+            elementsYcoord[4] = (height / 2);
+            elementsXcoord[5] = (width / 2) - radius4;
+            elementsYcoord[5] = (height / 2) - radius4;
+            elementsXcoord[6] = (width / 2);
+            elementsYcoord[6] = (height / 2) - radius4;
+            elementsXcoord[7] = (width / 2) - radius1;
+            elementsYcoord[7] = (height / 2) - radius1;
+            elementsXcoord[8] = (width / 2) - radius1;
+            elementsYcoord[8] = (height / 2);
+            rayElement1 = new RayElement(elementsXcoord[0], -elementsYcoord[0], 0, (width / 2) - radius2, Colors.Brown, 2);
+            arcElement2 = new ArcSegmentElement(elementsXcoord[1], -elementsYcoord[1], radius2, 270, 0, Colors.DarkCyan, 2);
+            rayElement2 = new RayElement(elementsXcoord[2], -elementsYcoord[2], 90, (height) - radius2 - radius3, Colors.Khaki, 2);
+            arcElement3 = new ArcSegmentElement(elementsXcoord[3], elementsYcoord[3], radius3, 0, 90, Colors.Tomato, 2);
+            rayElement3 = new RayElement(elementsXcoord[4], elementsYcoord[4], 180, (width) - radius4 - radius3, Colors.Violet, 2);
+            arcElement4 = new ArcSegmentElement(-elementsXcoord[5], elementsYcoord[5], radius4, 90, 180, Colors.RoyalBlue, 2);
+            rayElement4 = new RayElement(-elementsXcoord[6], elementsYcoord[6], 270, (height) - radius4 - radius1, Colors.SeaGreen, 2);
+            arcElement1 = new ArcSegmentElement(-elementsXcoord[7], -elementsYcoord[7], radius1, 180, 270, Colors.Fuchsia, 2);
+            rayElement5 = new RayElement(-elementsXcoord[8], -elementsYcoord[8], 0, (width / 2) - radius1, Colors.Indigo, 2);
             SectionLength = GetSectionLength();
         }
 
         public void Draw(Canvas canvas)
         {
 
-            rayElement1.Draw(canvas, 0, elementsLengthSummary[0]);
-            arcElement2.Draw(canvas, 1, elementsLengthSummary[1]);
-            rayElement2.Draw(canvas, 2, elementsLengthSummary[2]);
-            arcElement3.Draw(canvas, 3, elementsLengthSummary[3]);
-            rayElement3.Draw(canvas, 4, elementsLengthSummary[4]);
-            arcElement4.Draw(canvas, 5, elementsLengthSummary[5]);
-            rayElement4.Draw(canvas, 6, elementsLengthSummary[6]);
-            arcElement1.Draw(canvas, 7, elementsLengthSummary[7]);
-            rayElement5.Draw(canvas, 8, elementsLengthSummary[8]);
+            rayElement1.Draw(canvas, X, Y, 0, elementsLengthSummary[0]);
+            arcElement2.Draw(canvas, X, Y, 1, elementsLengthSummary[1]);
+            rayElement2.Draw(canvas, X, Y, 2, elementsLengthSummary[2]);
+            arcElement3.Draw(canvas, X, Y, 3, elementsLengthSummary[3]);
+            rayElement3.Draw(canvas, X, Y, 4, elementsLengthSummary[4]);
+            arcElement4.Draw(canvas, X, Y, 5, elementsLengthSummary[5]);
+            rayElement4.Draw(canvas, X, Y, 6, elementsLengthSummary[6]);
+            arcElement1.Draw(canvas, X, Y, 7, elementsLengthSummary[7]);
+            rayElement5.Draw(canvas, X, Y, 8, elementsLengthSummary[8]);
         }
 
-        public void DrawNormal(Canvas canvas, double normalLength, double pointPositionFromStart)
+        public LaserVector DrawNormal(Canvas canvas, double normalLength, double pointPositionFromStart)
         {
-
+            LaserVector laserVectorTemp;
             if (pointPositionFromStart <= elementsLengthSummary[0] && pointPositionFromStart > 0)
             {
-                rayElement1.DrawNormal(canvas, normalLength, pointPositionFromStart - 0);
+                rayElement1.DrawNormal(canvas, X, Y, normalLength, pointPositionFromStart - 0);
+                laserVectorTemp = rayElement1.CalculatePointPosition(pointPositionFromStart);
+                return new LaserVector(laserVectorTemp.X, laserVectorTemp.Y, laserVectorTemp.Angle);
             }
             else if (pointPositionFromStart > elementsLengthSummary[0] && pointPositionFromStart <= elementsLengthSummary[1])
             {
-                arcElement2.DrawNormal(canvas, normalLength, pointPositionFromStart - elementsLengthSummary[0]);
+                arcElement2.DrawNormal(canvas, X, Y, normalLength, pointPositionFromStart - elementsLengthSummary[0]);
+                laserVectorTemp = arcElement2.CalculatePointPosition(pointPositionFromStart - elementsLengthSummary[0]);
+                return new LaserVector(laserVectorTemp.X, laserVectorTemp.Y, laserVectorTemp.Angle);
+
             }
             else if (pointPositionFromStart > elementsLengthSummary[1] && pointPositionFromStart <= elementsLengthSummary[2])
             {
-                rayElement2.DrawNormal(canvas, normalLength, pointPositionFromStart - elementsLengthSummary[1]);
+                rayElement2.DrawNormal(canvas, X, Y, normalLength, pointPositionFromStart - elementsLengthSummary[1]);
+                laserVectorTemp = rayElement2.CalculatePointPosition(pointPositionFromStart - elementsLengthSummary[1]);
+                return new LaserVector(laserVectorTemp.X, laserVectorTemp.Y, laserVectorTemp.Angle);
             }
             else if (pointPositionFromStart > elementsLengthSummary[2] && pointPositionFromStart <= elementsLengthSummary[3])
             {
-                arcElement3.DrawNormal(canvas, normalLength, pointPositionFromStart - elementsLengthSummary[2]);
+                arcElement3.DrawNormal(canvas, X, Y, normalLength, pointPositionFromStart - elementsLengthSummary[2]);
+                laserVectorTemp = arcElement3.CalculatePointPosition(pointPositionFromStart - elementsLengthSummary[2]);
+                return new LaserVector(laserVectorTemp.X, laserVectorTemp.Y, laserVectorTemp.Angle);
             }
             else if (pointPositionFromStart > elementsLengthSummary[3] && pointPositionFromStart <= elementsLengthSummary[4])
             {
-                rayElement3.DrawNormal(canvas, normalLength, pointPositionFromStart - elementsLengthSummary[3]);
+                rayElement3.DrawNormal(canvas, X, Y, normalLength, pointPositionFromStart - elementsLengthSummary[3]);
+                laserVectorTemp = rayElement3.CalculatePointPosition(pointPositionFromStart - elementsLengthSummary[3]);
+                return new LaserVector(laserVectorTemp.X, laserVectorTemp.Y, laserVectorTemp.Angle);
             }
             else if (pointPositionFromStart > elementsLengthSummary[4] && pointPositionFromStart <= elementsLengthSummary[5])
             {
-                arcElement4.DrawNormal(canvas, normalLength, pointPositionFromStart - elementsLengthSummary[4]);
+                arcElement4.DrawNormal(canvas, X, Y, normalLength, pointPositionFromStart - elementsLengthSummary[4]);
+                laserVectorTemp = arcElement4.CalculatePointPosition(pointPositionFromStart - elementsLengthSummary[4]);
+                return new LaserVector(laserVectorTemp.X, laserVectorTemp.Y, laserVectorTemp.Angle);
             }
             else if (pointPositionFromStart > elementsLengthSummary[5] && pointPositionFromStart <= elementsLengthSummary[6])
             {
-                rayElement4.DrawNormal(canvas, normalLength, pointPositionFromStart - elementsLengthSummary[5]);
+                rayElement4.DrawNormal(canvas, X, Y, normalLength, pointPositionFromStart - elementsLengthSummary[5]);
+                laserVectorTemp = rayElement4.CalculatePointPosition(pointPositionFromStart - elementsLengthSummary[5]);
+                return new LaserVector(laserVectorTemp.X, laserVectorTemp.Y, laserVectorTemp.Angle);
             }
             else if (pointPositionFromStart > elementsLengthSummary[6] && pointPositionFromStart <= elementsLengthSummary[7])
             {
-                arcElement1.DrawNormal(canvas, normalLength, pointPositionFromStart - elementsLengthSummary[6]);
+                arcElement1.DrawNormal(canvas, X, Y, normalLength, pointPositionFromStart - elementsLengthSummary[6]);
+                laserVectorTemp = arcElement1.CalculatePointPosition(pointPositionFromStart - elementsLengthSummary[6]);
+                return new LaserVector(laserVectorTemp.X, laserVectorTemp.Y, laserVectorTemp.Angle);
             }
             else if (pointPositionFromStart > elementsLengthSummary[7] && pointPositionFromStart <= elementsLengthSummary[8])
             {
-                rayElement5.DrawNormal(canvas, normalLength, pointPositionFromStart - elementsLengthSummary[7]);
+                rayElement5.DrawNormal(canvas, X, Y, normalLength, pointPositionFromStart - elementsLengthSummary[7]);
+                laserVectorTemp = rayElement5.CalculatePointPosition(pointPositionFromStart - elementsLengthSummary[7]);
+                return new LaserVector(laserVectorTemp.X, laserVectorTemp.Y, laserVectorTemp.Angle);
             }
-
-            /*          arcElement2.DrawNormal(canvas, normalLength, pointPositionFromStart);
-                      arcElement3.DrawNormal(canvas, normalLength, pointPositionFromStart);
-                      arcElement4.DrawNormal(canvas, normalLength, pointPositionFromStart);
-                      rayElement1.DrawNormal(canvas, normalLength, pointPositionFromStart);
-                      rayElement2.DrawNormal(canvas, normalLength, pointPositionFromStart);
-                      rayElement3.DrawNormal(canvas, normalLength, pointPositionFromStart);
-                      rayElement4.DrawNormal(canvas, normalLength, pointPositionFromStart);
-                      rayElement5.DrawNormal(canvas, normalLength, pointPositionFromStart);*/
+            else
+            {
+                return new LaserVector(0, 0, 0);
+            }
         }
 
         public double GetSectionLength()
