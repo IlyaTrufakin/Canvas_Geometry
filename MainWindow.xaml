@@ -32,7 +32,7 @@
         </StackPanel>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Background="AliceBlue">
-            <Label>Радиус Оси С1:</Label>
+            <Label>Длина лазерной головки:</Label>
             <TextBox Text="{Binding CircleRadius, Mode=TwoWay}" Width="50" Margin="5"/>
             <Label>Угол Оси С1:</Label>
             <TextBox Text="{Binding C1_Angle, Mode=TwoWay}" Width="50" Margin="5"/>
@@ -48,9 +48,9 @@
             <Label>Радиус Оси С2:</Label>
             <TextBox Text="{Binding CircleRadius, Mode=TwoWay}" Width="50" Margin="5"/>
             <Label>Угол Оси С2:</Label>
-            <TextBox Text="{Binding C1_Angle, Mode=TwoWay}" Width="50" Margin="5"/>
-            <Label>Смещение центра вращения по Х:</Label>
-            <TextBox Text="{Binding CircleCenterX_offset, Mode=TwoWay}" Width="50" Margin="5"/>
+            <TextBox Text="{Binding C2_Angle, Mode=TwoWay}" Width="50" Margin="5"/>
+            <Label>Разница углов С1 и С2:</Label>
+            <TextBox Text="{Binding C1_C2_Angle, Mode=OneWay}" Width="50" Margin="5"/>
             <Label>Смещение центра вращения по У:</Label>
             <TextBox Text="{Binding CircleCenterY_offset, Mode=TwoWay}" Width="50" Margin="5"/>
             <Label>Скорость вращения:</Label>

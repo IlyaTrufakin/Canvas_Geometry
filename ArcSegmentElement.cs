@@ -63,7 +63,7 @@ namespace RectangleApp
         }
 
         // Метод для вычисления координат точки на дуге
-        public LaserVector CalculatePointPosition(double pointPositionFromStart)
+        public LaserVector CalculatePointPosition(double pointPositionFromStart, double normalLength)
         {
             PointPositionFromStart = pointPositionFromStart;
             // Вычисление координат точки на дуге
@@ -72,7 +72,12 @@ namespace RectangleApp
             PointNormalAngle = PointNormalAngleRadians * (180 / Math.PI);
             PointX_Position = R * Math.Cos(PointNormalAngleRadians);
             PointY_Position = R * Math.Sin(PointNormalAngleRadians);
-            return new LaserVector(X + PointX_Position, Y + PointY_Position, PointNormalAngleRadians);
+            double normalEndX = PointX_Position - (normalLength * Math.Cos(PointNormalAngleRadians + Math.PI));
+            double normalEndY = PointY_Position - (normalLength * Math.Sin(PointNormalAngleRadians + Math.PI));
+            double deltaX = normalEndX - PointX_Position;
+            double deltaY = normalEndY - PointY_Position;
+            double length = Math.Sqrt((deltaX * deltaX) + (deltaY * deltaY));
+            return new LaserVector(X + PointX_Position, Y + PointY_Position, PointNormalAngleRadians, length);
         }
 
         // Метод для вычисления угла нормали
@@ -131,7 +136,7 @@ namespace RectangleApp
         public void DrawNormal(Canvas canvas, double x, double y, double normalLength, double pointPositionFromStart)
         {
             // Вычисление координат точки на кривой
-            CalculatePointPosition(pointPositionFromStart);
+            CalculatePointPosition(pointPositionFromStart, normalLength);
             // Вычисление координат конца нормали
             double normalEndX = PointX_Position - (normalLength * Math.Cos(PointNormalAngleRadians + Math.PI));
             double normalEndY = PointY_Position - (normalLength * Math.Sin(PointNormalAngleRadians + Math.PI));

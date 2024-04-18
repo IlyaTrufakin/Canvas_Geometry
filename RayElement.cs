@@ -31,7 +31,7 @@ namespace RectangleApp
 
         public RayElement(double x, double y, double angle, double length, Color color = default, double thickness = 1)
         {
-            if (length <= 0)
+            if (length < 0)
             {
                 throw new ArgumentOutOfRangeException("Length must be positive");
             }
@@ -50,21 +50,39 @@ namespace RectangleApp
 
 
         // Метод для вычисления координат точки на луче
-        public LaserVector CalculatePointPosition(double pointPositionFromStart)
+        public LaserVector CalculatePointPosition(double pointPositionFromStart, double normalLength)
         {
             PointX_Position_Normal = X + (pointPositionFromStart * Math.Cos(AngleRadians));
             PointY_Position_Normal = Y + (pointPositionFromStart * Math.Sin(AngleRadians));
             PointNormalAngleRadians = (AngleRadians - (Math.PI / 2) + 2 * Math.PI) % (2 * Math.PI);// Добавляем PI, чтобы нормаль была противоположна направлению луча
             PointNormalAngle = PointNormalAngleRadians * (180 / Math.PI); // Перевод угла в градусы
-            return new LaserVector(PointX_Position_Normal, PointY_Position_Normal, PointNormalAngleRadians);
+            double normalEndX = PointX_Position_Normal - (normalLength * Math.Cos(PointNormalAngleRadians + Math.PI));
+            double normalEndY = PointY_Position_Normal - (normalLength * Math.Sin(PointNormalAngleRadians + Math.PI));
+            double deltaX = normalEndX - PointX_Position_Normal;
+            double deltaY = normalEndY - PointY_Position_Normal;
+            double length = Math.Sqrt((deltaX * deltaX) + (deltaY * deltaY));
+            return new LaserVector(PointX_Position_Normal, PointY_Position_Normal, PointNormalAngleRadians, length);
         }
 
-        // Метод для вычисления угла нормали
-        /*      public void CalculatePointNormalAngle()
-              {
-                  PointNormalAngleRadians = (AngleRadians - (Math.PI / 2) + 2 * Math.PI) % (2 * Math.PI);// Добавляем PI, чтобы нормаль была противоположна направлению луча
-                  PointNormalAngle = PointNormalAngleRadians * (180 / Math.PI); // Перевод угла в градусы
-              }*/
+/*        public LaserVector CalculatePointPosition(double pointPositionFromStart, double normalLength)
+        {
+            PointX_Position_Normal = X + (pointPositionFromStart * Math.Cos(AngleRadians));
+            PointY_Position_Normal = Y + (pointPositionFromStart * Math.Sin(AngleRadians));
+            PointNormalAngleRadians = (AngleRadians - (Math.PI / 2) + 2 * Math.PI) % (2 * Math.PI); // Добавляем PI, чтобы нормаль была противоположна направлению луча
+            PointNormalAngle = PointNormalAngleRadians * (180 / Math.PI); // Перевод угла в градусы
+
+            // Конечная точка нормали смещается относительно начальной точки на normalLength
+            double normalEndX = PointX_Position_Normal + (normalLength * Math.Cos(PointNormalAngleRadians));
+            double normalEndY = PointY_Position_Normal + (normalLength * Math.Sin(PointNormalAngleRadians));
+
+            double deltaX = normalEndX - PointX_Position_Normal;
+            double deltaY = normalEndY - PointY_Position_Normal;
+            double length = Math.Sqrt((deltaX * deltaX) + (deltaY * deltaY));
+
+            return new LaserVector(PointX_Position_Normal, PointY_Position_Normal, PointNormalAngleRadians, length);
+        }*/
+
+
 
         public void Draw(Canvas canvas, double x, double y, int elementNumder, double totalLenght = 0)
         {
@@ -96,7 +114,7 @@ namespace RectangleApp
         public void DrawNormal(Canvas canvas, double x, double y, double normalLength, double pointPositionFromStart)
         {
             // Вычисление координат точки на кривой
-            CalculatePointPosition(pointPositionFromStart);
+            CalculatePointPosition(pointPositionFromStart, normalLength);
             // Вычисление координат конца нормали
             double normalEndX = PointX_Position_Normal - (normalLength * Math.Cos(PointNormalAngleRadians + Math.PI));
             double normalEndY = PointY_Position_Normal - (normalLength * Math.Sin(PointNormalAngleRadians + Math.PI));

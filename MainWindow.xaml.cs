@@ -57,11 +57,31 @@ namespace RectangleApp
         private double _sectionLength;
         private double _sectionCuttingLength;
         private double _currentElement;
+        private double _C1_C2_Angle;
+        private double _C2_Angle;
         private DispatcherTimer timer;
         private DispatcherTimer timerRender;
         public event PropertyChangedEventHandler PropertyChanged;
         public LaserVector laserVector;
 
+        public double C1_C2_Angle
+        {
+            get { return _C1_C2_Angle; }
+            set
+            {
+                _C1_C2_Angle = value;
+                RaisePropertyChanged(nameof(C1_C2_Angle));
+            }
+        }
+        public double C2_Angle
+        {
+            get { return _C2_Angle; }
+            set
+            {
+                _C2_Angle = value;
+                RaisePropertyChanged(nameof(C2_Angle));
+            }
+        }
         public double CanvasWidth
         {
             get { return _canvasWidth; }
@@ -313,7 +333,7 @@ namespace RectangleApp
             StartEdge = 1;
             StartCuttingPosition = 0;
             DataContext = this;
-            CurrentPosition = 10;
+            CurrentPosition = 0;
             RectangleWidthValue = 300;
             RectangleHeightValue = 500;
             Radius1 = 50;
@@ -321,9 +341,9 @@ namespace RectangleApp
             Radius3 = 50;
             Radius4 = 50;
             CircleRadius = 300;
-            CircleCenterX_offset = 10;
-            CircleCenterY_offset = -15;
-            RotationSpeed = 3; // default rotation speed
+            CircleCenterX_offset = 0;
+            CircleCenterY_offset = -0;
+            RotationSpeed = 1; // default rotation speed
             //MarkerAngle = 0; // initial angle
             timer = new DispatcherTimer();
             timer.Tick += Timer_Tick;
@@ -361,44 +381,34 @@ namespace RectangleApp
 
             rectangleElement = new RectangleElement(canvasCenter_X, canvasCenter_Y, RectangleWidthValue, RectangleHeightValue, Radius1, Radius2, Radius3, Radius4);
             rectangleElement.Draw(canvas1);
-            laserVector = rectangleElement.DrawNormal(canvas1, 30, CurrentPosition);
+            laserVector = rectangleElement.DrawNormal(canvas1, CircleRadius, CurrentPosition);
 
 
-            LaserHead laserHead = new LaserHead(laserVector, 150, Colors.DeepPink, 3);
+            LaserHead laserHead = new LaserHead(laserVector, CircleRadius, Colors.DeepPink, 3);
             laserHead.Draw(canvas1, canvasCenter_X, canvasCenter_Y);
 
             // Создание окружности оси С1
-            double circleCenterX = canvasCenter_X;// + CircleCenterX_offset;
-            double circleCenterY = canvasCenter_Y;// + CircleCenterY_offset;
+            double circleCenterX = canvasCenter_X + CircleCenterX_offset;
+            double circleCenterY = canvasCenter_Y + CircleCenterY_offset;
 
-            Ellipse circle = CreateCircle(circleCenterX, circleCenterY, laserHead.End_X_Position, laserHead.End_Y_Position);
-            canvas1.Children.Add(circle);
+            Disk disk = new Disk(circleCenterX, circleCenterY, CircleCenterX_offset, CircleCenterY_offset,  laserVector, Colors.Red, 2);
+            disk.Draw(canvas1, circleCenterX, circleCenterY, 10);
 
-            Path c1Axis = CreateCrossLines(circleCenterX + CircleCenterX_offset, circleCenterY + CircleCenterY_offset, 40, C1_Angle);
-            canvas1.Children.Add(c1Axis);
+            double Angle = disk.StartAngleRadians;// * (180 / Math.PI); // Перевод угла в градусы
+            var rayElement = new RayElement(circleCenterX, circleCenterY, Angle, disk.R, Colors.Brown, 2);
+            rayElement.Draw(canvas1, 0, 0, 0, 88);
 
-
-
-
-
-            /*          DoubleAnimation rotateAnimation = new DoubleAnimation();
-                      rotateAnimation.From = 0; // Угол начала анимации
-                      rotateAnimation.To = 360; // Угол окончания анимации
-                      rotateAnimation.Duration = TimeSpan.FromSeconds(2); // Продолжительность анимации
-                      rotateAnimation.RepeatBehavior = RepeatBehavior.Forever; // Повторять анимацию бесконечно*/
-
-            // Создание вращательной трансформации
-            //RotateTransform rotateTransform = new RotateTransform();
-            //c1Axis.RenderTransform = rotateTransform; // Применение трансформации к прямоугольнику
-
-            // Запуск анимации вращения
-            //rotateTransform.BeginAnimation(RotateTransform.AngleProperty, rotateAnimation);
+            C1_Angle = disk.StartAngleRadians;
+            C2_Angle = laserVector.Angle;
+            C1_C2_Angle = C2_Angle - C1_Angle;
+  
+     
 
             TextBlock textBlock = new TextBlock();
             textBlock.FontSize = 11;
             textBlock.VerticalAlignment = VerticalAlignment.Center;
             textBlock.TextAlignment = TextAlignment.Center;
-            textBlock.Text = $"СN:{laserVector.Angle}\nX:{laserVector.X:F2}\nY:{laserVector.Y:F2}";
+            textBlock.Text = $"СN:{laserVector.AngleRadians}\nX:{laserVector.X:F2}\nY:{laserVector.Y:F2}";
             // Canvas.SetLeft(textBlock, laserVector.X + canvasCenter_X);
             //Canvas.SetTop(textBlock, laserVector.Y - canvasCenter_Y);
             Canvas.SetLeft(textBlock, canvasCenter_X);
@@ -413,7 +423,7 @@ namespace RectangleApp
         {
             // Increment angle for rotation
             MarkerAngle += RotationSpeed;
-            C1_Angle += RotationSpeed;
+            //C1_Angle += RotationSpeed;
             // Находим новую точку на нормали к контуру прямоугольника
             //Point newPoint = FindPointOnNormalToRectangle(currentPoint.X, currentPoint.Y, RectangleWidthValue, RectangleHeightValue, Radius1, Radius2, Radius3, Radius4, vectorLength, MarkerAngle);
             CurrentPosition += RotationSpeed;
@@ -474,5 +484,36 @@ namespace RectangleApp
             //canvas.LayoutTransform = scaleTransform;
         }
 
+
+
+
+ /*       private Path CreateCrossLines(double x, double y, double length, double angle)
+        {
+
+            RotateTransform rotateTransform = new RotateTransform(angle, 0, 0);// Создаем вращающее преобразование
+            path.RenderTransform = rotateTransform;
+            Canvas.SetLeft(path, x);
+            Canvas.SetTop(path, y);
+            canvas1.Children.Add(c1Axis); Canvas canvas
+            return path;
+        }*/
+
+        private Ellipse CreateCircle(double circleCenterX, double circleCenterY, double point_X, double point_Y)
+        {
+            // Создание окружности
+            //double circleRadius = Math.Sqrt(Math.Pow(point_X + CircleCenterX_offset, 2) + Math.Pow(point_Y + CircleCenterY_offset, 2));
+            double circleRadius = Math.Sqrt(Math.Pow(point_X, 2) + Math.Pow(point_Y, 2));
+            Ellipse circle = new Ellipse
+            {
+                Width = circleRadius * 2,
+                Height = circleRadius * 2,
+                Stroke = Brushes.Red,
+                StrokeThickness = 2
+            };
+
+            Canvas.SetLeft(circle, circleCenterX - circleRadius);
+            Canvas.SetTop(circle, circleCenterY - circleRadius);
+            return circle;
+        }
     }
 }

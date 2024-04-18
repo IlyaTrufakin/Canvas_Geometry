@@ -28,7 +28,7 @@ namespace RectangleApp
         {
             X = laserVector.X;
             Y = laserVector.Y;
-            AngleRadians = laserVector.Angle;
+            AngleRadians = laserVector.AngleRadians;
             Length = length;
             Color = color != default ? color : Colors.Black;
             Thickness = thickness;
