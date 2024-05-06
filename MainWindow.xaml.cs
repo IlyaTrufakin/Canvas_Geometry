@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -63,6 +64,13 @@ namespace RectangleApp
         private DispatcherTimer timerRender;
         public event PropertyChangedEventHandler PropertyChanged;
         public LaserVector laserVector;
+        public List<Coordinate> coordinates;
+        public double circleCenterX;
+        public double circleCenterY;
+        public bool redraw;
+        public int coordinateIndx = 0;
+        public List<RayElement> RayElements = new List<RayElement>();
+        public RayElement rayElementtemp;
 
         public double C1_C2_Angle
         {
@@ -353,6 +361,7 @@ namespace RectangleApp
             timerRender.Interval = TimeSpan.FromMilliseconds(1000);
             timerRender.Start();
             canvas1.Loaded += Canvas_Loaded;
+            coordinates = ParseFile("test3.txt");
         }
 
         private void RaisePropertyChanged(string propertyName)
@@ -388,10 +397,10 @@ namespace RectangleApp
             laserHead.Draw(canvas1, canvasCenter_X, canvasCenter_Y);
 
             // Создание окружности оси С1
-            double circleCenterX = canvasCenter_X + CircleCenterX_offset;
-            double circleCenterY = canvasCenter_Y + CircleCenterY_offset;
+            circleCenterX = canvasCenter_X + CircleCenterX_offset;
+            circleCenterY = canvasCenter_Y + CircleCenterY_offset;
 
-            Disk disk = new Disk(circleCenterX, circleCenterY, CircleCenterX_offset, CircleCenterY_offset,  laserVector, Colors.Red, 2);
+            Disk disk = new Disk(circleCenterX, circleCenterY, CircleCenterX_offset, CircleCenterY_offset, laserVector, Colors.Red, 2);
             disk.Draw(canvas1, circleCenterX, circleCenterY, 10);
 
             double Angle = disk.StartAngleRadians;// * (180 / Math.PI); // Перевод угла в градусы
@@ -401,16 +410,38 @@ namespace RectangleApp
             C1_Angle = disk.StartAngleRadians;
             C2_Angle = laserVector.Angle;
             C1_C2_Angle = C2_Angle - C1_Angle;
-  
-     
+
+            if (redraw)
+            {
+                do
+                {
+                    rayElementtemp = new RayElement(circleCenterX, circleCenterY, 0 - (coordinates[coordinateIndx].C1 / 20), coordinates[coordinateIndx].X6 / 10, Colors.DarkMagenta, 2);
+                    RayElements.Add(rayElementtemp);
+                    coordinateIndx += 5;
+                } while (coordinateIndx < 16300);
+
+                if (coordinateIndx < 16300)
+                {
+                      //redraw = false;
+                }
+                else
+                {
+                    coordinateIndx = 0;
+                    redraw = false;
+                }
+            }
+
+            RayElements.ForEach(el =>
+            {
+                el.Draw(canvas1, 0, 0, 0, 88);
+            });
 
             TextBlock textBlock = new TextBlock();
             textBlock.FontSize = 11;
             textBlock.VerticalAlignment = VerticalAlignment.Center;
             textBlock.TextAlignment = TextAlignment.Center;
             textBlock.Text = $"СN:{laserVector.AngleRadians}\nX:{laserVector.X:F2}\nY:{laserVector.Y:F2}";
-            // Canvas.SetLeft(textBlock, laserVector.X + canvasCenter_X);
-            //Canvas.SetTop(textBlock, laserVector.Y - canvasCenter_Y);
+
             Canvas.SetLeft(textBlock, canvasCenter_X);
             Canvas.SetTop(textBlock, canvasCenter_Y);
             canvas1.Children.Add(textBlock);
@@ -424,8 +455,6 @@ namespace RectangleApp
             // Increment angle for rotation
             MarkerAngle += RotationSpeed;
             //C1_Angle += RotationSpeed;
-            // Находим новую точку на нормали к контуру прямоугольника
-            //Point newPoint = FindPointOnNormalToRectangle(currentPoint.X, currentPoint.Y, RectangleWidthValue, RectangleHeightValue, Radius1, Radius2, Radius3, Radius4, vectorLength, MarkerAngle);
             CurrentPosition += RotationSpeed;
             UpdateShapes();
         }
@@ -454,8 +483,10 @@ namespace RectangleApp
             // Приостанавливаем движение вектора
             timer.Stop();
         }
-
-
+        private void RedrawButton_Click(object sender, RoutedEventArgs e)
+        {
+            redraw = true;
+        }
 
         private Line DashLine(double startPointX, double startPointY, double endPointX, double endPointY, int dash1, int dash2)
         {
@@ -480,23 +511,9 @@ namespace RectangleApp
             // Добавьте canvas в нужный вам контейнер, например, в Grid:
             CanvasContainer.Children.Add(canvas1);
             canvas1.Children.Clear();
-            //var scaleTransform = new ScaleTransform(2, 2); // Увеличиваем в 1.5 раза
-            //canvas.LayoutTransform = scaleTransform;
+            var scaleTransform = new ScaleTransform(0.15, 0.15); // Увеличиваем в 1.5 раза
+            canvas1.LayoutTransform = scaleTransform;
         }
-
-
-
-
- /*       private Path CreateCrossLines(double x, double y, double length, double angle)
-        {
-
-            RotateTransform rotateTransform = new RotateTransform(angle, 0, 0);// Создаем вращающее преобразование
-            path.RenderTransform = rotateTransform;
-            Canvas.SetLeft(path, x);
-            Canvas.SetTop(path, y);
-            canvas1.Children.Add(c1Axis); Canvas canvas
-            return path;
-        }*/
 
         private Ellipse CreateCircle(double circleCenterX, double circleCenterY, double point_X, double point_Y)
         {
@@ -514,6 +531,41 @@ namespace RectangleApp
             Canvas.SetLeft(circle, circleCenterX - circleRadius);
             Canvas.SetTop(circle, circleCenterY - circleRadius);
             return circle;
+        }
+
+
+        static List<Coordinate> ParseFile(String fileName)
+        {
+            List<Coordinate> coordinates = new List<Coordinate>();
+            Regex regex = new Regex(@"(-?\d+\,\d+)\s*C1;\s*(-?\d+\,\d+)\s*C2;\s*(-?\d+\,\d+)\s*X6;");
+            string[] lines = File.ReadAllLines("Result" + fileName);
+
+            foreach (string line in lines)
+            {
+                Match match = regex.Match(line);
+                if (match.Success)
+                {
+                    try
+                    {
+                        double c1 = double.Parse(match.Groups[1].Value);
+                        double c2 = double.Parse(match.Groups[2].Value);
+                        double x6 = double.Parse(match.Groups[3].Value);
+                        coordinates.Add(new Coordinate { C1 = c1, C2 = c2, X6 = x6 });
+                    }
+                    catch (FormatException)
+                    {
+                        // Пропускаем строку, которую не удалось распарсить
+                        Console.WriteLine("NOT!");
+                        continue;
+                    }
+                }
+            }
+            return coordinates;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

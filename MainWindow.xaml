@@ -68,9 +68,10 @@
             <TextBox Text="{Binding CurrentPosition, Mode=TwoWay}" Width="50" Margin="5" Background="Gold"/>
             <Label>Текущий элемент на сечении:</Label>
             <TextBox Text="{Binding CurrentElement, Mode=OneWay}" Width="20" Margin="5" Background="Transparent"/>
-            <Button Content="Start" Width="80" Margin="5" Click="StartButton_Click"/>
-            <Button Content="Stop" Width="80" Margin="5" Click="PauseButton_Click"/>
-            <Button Content="Reset" Width="80" Margin="5" Click="ResetButton_Click"/>
+            <Button Content="Start" Width="60" Margin="5" Click="StartButton_Click"/>
+            <Button Content="Stop" Width="60" Margin="5" Click="PauseButton_Click"/>
+            <Button Content="Reset" Width="60" Margin="5" Click="ResetButton_Click"/>
+            <Button Content="Redraw" Width="60" Margin="5" Click="RedrawButton_Click"/>
 
         </StackPanel>
 
